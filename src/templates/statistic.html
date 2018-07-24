@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='global.css') }}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.2/js/bootstrap.min.js"></script>
+<title>Vulnerability Editor</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<ul class="nav ">
+<li class="nav-item">
+    <a class="nav-link active" href="{{url_for('index')}}">Create</a>
+</li>
+<li class="nav-item">
+<a class="nav-link disabled" href="{{url_for('edit')}}">Edit</a>
+</li>
+<li class="nav-item">
+<a class="nav-link disabled" href="{{url_for('statistic')}}">Statistic</a>
+</li>
+</ul>
+</nav>
+
+<div class="form-container">
+    <picture>
+        <img src="{{ url_for('static', filename='orel_resized.png') }}" alt="" class="rounded mx-auto d-block">
+    </picture>
+    <h3>Vulnerability Server Statistic</h3>
+    <p></p>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Database</th>
+            <th>Count</th>
+            <th>New</th>
+            <th>Modified</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1.</td>
+            <td>Vulnerabilities</td>
+            <td>{{ vulners_count }}</td>
+            <td>0</td>
+            <td>0</td>
+            <td>Online</td>
+        </tr>
+        <tr>
+            <td>2.</td>
+            <td>CVE</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>Online</td>
+        </tr>
+        </tbody>
+    </table>   
+</div>
+
+</body>
+</html>
