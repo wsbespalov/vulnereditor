@@ -1,30 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.2/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='global.css') }}">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.2/js/bootstrap.min.js"></script>
-<title>Vulnerability Editor</title>
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-<ul class="nav ">
-<li class="nav-item">
-<a class="nav-link active" href="{{url_for('index')}}">Create</a>
-</li>
-<li class="nav-item">
-<a class="nav-link disabled" href="{{url_for('edit')}}">Edit</a>
-</li>
-<li class="nav-item">
-<a class="nav-link disabled" href="{{url_for('statistic')}}">Statistic</a>
-</li>
-</ul>
-</nav>
+{% extends 'base.html' %}
+
+{% block content %}
 
 <div class="form-container">
     <div class="card-body px-lg-5 pt-0">
@@ -41,68 +17,152 @@
             
             <div class="form-row mb-3">
                 <div class="col">
+                    <label for="vulnerID">Vulnerability ID</label>
                     <input type="text" id="vulnerID" class="form-control" placeholder="Vulnerability ID">
+                    <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit" id="generateSPID" onclick="generateSPIDClick()">Generate SPID</button>
                 </div>
                 <div class="col">
+                    <label for="vulnerSOurce">Vulnerability Source</label>
                     <input type="text" id="vulnerSource" class="form-control" placeholder="Vulnerability Source">
                 </div>
                 <div class="col">
+                    <label for="timestamp">Published Timestamp</label>
                     <input type="text" id="timestamp" class="form-control" placeholder="Timestamp">
                 </div>
             </div>
 
             <div class="form-row mb-3">
                 <div class="col">
+                    <label for="dataType">Data Type</label>
                     <input type="text" id="dataType" class="form-control" placeholder="Data Type">
                 </div>
                 <div class="col">
+                    <label for="dataVersion">Data Version</label>
                     <input type="text" id="dataVersion" class="form-control" placeholder="Data Version">
                 </div>
                 <div class="col">
+                    <label for="dataFormat">Data Format</label>
                     <input type="text" id="dataFormat" class="form-control" placeholder="Data Format">
                 </div>
             </div>
 
             <div class="form-row mb-3">
                 <div class="col">
+                    <label for="cvssScore">CVSS Score</label>
                     <input type="text" id="cvssScore" class="form-control" placeholder="CVSS Score">
                 </div>
                 <div class="col">
+                    <label for="cvssRank">CVSS Rank</label>
                     <input type="text" id="cvssRank" class="form-control" placeholder="Rank">
                 </div>
                 <div class="col">
+                    <label for="cvssTime">CVSS Time</label>
                     <input type="text" id="cvssTime" class="form-control" placeholder="CVSS Time">
                 </div>
             </div>
 
             <div class="form-group">
+                <label for="vectorString">Vector String</label>
                 <input type="text" id="vectorString" class="form-control mb-4" placeholder="Vector String">
             </div>
             
             <div class="form-group">
+                <label for="CWERelated">CWE Related</label>
                 <input type="text" id="CWERelated" class="form-control mb-4" placeholder="CWE Related">
             </div>
 
             <div class="form-group">
+                <label for="CAPECRelated">CAPEC Related</label>
                 <input type="text" id="CAPECRelated" class="form-control mb-4" placeholder="CAPEC Related">
             </div>
 
             <div class="form-group">
+                <label for="References">References</label>
                 <input type="text" id="References" class="form-control mb-4" placeholder="References List">
             </div>
 
             <div class="form-group">
+                <label for="Description">Description:</label>
                 <textarea class="form-control" aria-label="With textarea" placeholder="Description" style="height: 20vh;"></textarea>
             </div>
 
             <div class="form-group">
-                <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit">Save Vulnerability</button>
+                <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit" id="saveVulner">Save Vulnerability</button>
             </div>
 
         </form>
     </div>  
 </div>
 
+<script type="text/javascript">
 
-</body>
-</html>
+    document.getElementById('generateSPID').onclick = function() {
+        $('#vulnerID').val('123')
+    }
+
+    function validateDatetime(dateStr) {
+        // 1999-12-30 05:00:00
+        if (dateStr == "") {
+            alert('Datetime is empty');
+            return false
+        }
+        var matchArray = dateStr.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+        if (matchArray == null) {
+            alert("Date must be in YYYY-MM-DD hh:mm:ss format")
+            return false
+        }
+        return true
+    }
+
+    /*
+    $(function() {
+        $('#saveVulner').bind('click', function() {
+            var vid = $('#vulnerID').val();
+            var source = $('#vulnerSource').val();
+            var data_type = $('#dataType').val();
+            var data_format = $('#dataFormat').val();
+            var data_version = $('#dataVersion').val();
+            var description = $('#Description').text();
+            var cvss_time = $('#cvssTime').val();
+            var cvssTimeIsCorrect = validateDatetime(cvss_time);
+            var published = $('#timestamp').val();
+            var publishedIsCorrect = validateDatetime(published);
+            var cvss = $('#cvssScore').val();
+            var rank = $('#cvssRank').val();
+            var vector_string = $('#vectorString').val();
+            var cwe = $('#CWERelated').val();
+            var capec = $('#CAPECRelated').val();
+            var references = $('#References').val();
+            if (publishedIsCorrect && cvssTimeIsCorrect) {
+                var res = false;
+                res = confirm('Really change?');
+                if (res == true) {
+                    $.getJSON('/create_vulner', {
+                        id: vid,
+                        source: source,
+                        data_type: data_type,
+                        data_format: data_format,
+                        data_version: data_version,
+                        description: description,
+                        cvss_time: cvss_time,
+                        published: published,
+                        cvss: cvss,
+                        rank: rank,
+                        vector_string: vector_string,
+                        cwe: cwe,
+                        capec: capec,
+                        references: references
+                    }, function(data) {
+                        alert(data.result);
+                    });            
+                }
+            } else {
+                alert('Cancel searching')
+            }
+        });
+    });
+    */
+
+</script>
+
+{% endblock content %}

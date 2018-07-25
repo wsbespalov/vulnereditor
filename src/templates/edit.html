@@ -1,30 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.2/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='global.css') }}">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.2/js/bootstrap.min.js"></script>
-<title>Vulnerability Editor</title>
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-<ul class="nav ">
-<li class="nav-item">
-<a class="nav-link active" href="{{url_for('index')}}">Create</a>
-</li>
-<li class="nav-item">
-<a class="nav-link disabled" href="{{url_for('edit')}}">Edit</a>
-</li>
-<li class="nav-item">
-<a class="nav-link disabled" href="{{url_for('statistic')}}">Statistic</a>
-</li>
-</ul>
-</nav>
+{% extends 'base.html' %}
+
+{% block content %}
 
 <div class="form-container">
     <div class="card-body px-lg-5 pt-0">
@@ -36,7 +12,7 @@
             </div>
             
             <div class="form-group">
-                <p class="h4 mb-4">Create New Vulnerability Item</p>
+                <p class="h4 mb-4">Edit Existing Vulnerability Item</p>
             </div>
             
             <div class="form-row mb-3">
@@ -119,17 +95,62 @@
 </div>
 
 <script type="text/javascript">
+
+    function validateDatetime(dateStr) {
+        // 1999-12-30 05:00:00
+        if (dateStr == "") {
+            alert('Datetime is empty');
+            return false
+        }
+        var matchArray = dateStr.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+        if (matchArray == null) {
+            alert("Date must be in YYYY-MM-DD hh:mm:ss format")
+            return false
+        }
+        return true
+    }
+
     $(function() {
         $('#saveVulner').bind('click', function() {
-            var vid = $('#vulnerID').val()
-            var res = false;
-            res = confirm('Really change?')
-            if (res == true) {
-                $.getJSON('/update_vulner_by_id', {
-                    id: vid
-                }, function(data) {
-                    alert(data.result);
-                });
+            var vid = $('#vulnerID').val();
+            var source = $('#vulnerSource').val();
+            var data_type = $('#dataType').val();
+            var data_format = $('#dataFormat').val();
+            var data_version = $('#dataVersion').val();
+            var description = $('#Description').text();
+            var cvss_time = $('#cvssTime').val();
+            var cvssTimeIsCorrect = validateDatetime(cvss_time);
+            var published = $('#timestamp').val();
+            var publishedIsCorrect = validateDatetime(published);
+            var cvss = $('#cvssScore').val();
+            var rank = $('#cvssRank').val();
+            var vector_string = $('#vectorString').val();
+            var cwe = $('#CWERelated').val();
+            var capec = $('#CAPECRelated').val();
+            var references = $('#References').val();
+            if (publishedIsCorrect && cvssTimeIsCorrect) {
+                var res = false;
+                res = confirm('Really change?');
+                if (res == true) {
+                    $.getJSON('/update_vulner_by_id', {
+                        id: vid,
+                        source: source,
+                        data_type: data_type,
+                        data_format: data_format,
+                        data_version: data_version,
+                        description: description,
+                        cvss_time: cvss_time,
+                        published: published,
+                        cvss: cvss,
+                        rank: rank,
+                        vector_string: vector_string,
+                        cwe: cwe,
+                        capec: capec,
+                        references: references
+                    }, function(data) {
+                        alert(data.result);
+                    });            
+                }
             } else {
                 alert('Cancel searching')
             }
@@ -172,5 +193,4 @@
     });
 </script>
 
-</body>
-</html>
+{% endblock content %}

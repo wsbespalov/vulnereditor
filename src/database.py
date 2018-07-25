@@ -159,10 +159,57 @@ def count_vulners():
     return count
 
 def find_vulner_by_id_in_database(id):
+    connect_database()
     vulners = list(VULNERABILITIES.select().where(VULNERABILITIES.vulnerability_id == id))
     if len(vulners) > 0:
+        disconnect_database()
         return vulners[0].to_json
-    return None
+    disconnect_database()
+    return dict(
+            id='undefined',
+            vulnerability_id='undefined',
+            componentversion='undefined',
+            cwe=[],
+            capec=[],
+            references=[],
+            vulnerable_configuration=[],
+            data_type='undefined',
+            data_version='undefined',
+            data_format='undefined',
+            description='undefined',
+            published=datetime.utcnow(),
+            modified=datetime.utcnow(),
+            access={},
+            impact={},
+            vector_string='undefined',
+            cvss_time=datetime.utcnow(),
+            cvss=0.0,
+            componentversion_string='undefined',
+            metadata='undefined',
+        )
 
 def update_vulner_by_id_in_database(id, data):
-    pass
+    connect_database()
+
+    vuln = VULNERABILITIES.get_or_none(VULNERABILITIES.vulnerability_id == id)
+    if vuln is not None:
+        vuln.cwe = data.get("cwe", [])
+        vuln.capec = data.get("capec", [])
+        vuln.references = data.get("references", [])
+        vuln.data_type = data.get('data_type', '')
+        vuln.data_format = data.get('data_format', '')
+        vuln.data_version = data.get('data_version', '')
+        vuln.description = data.get('description', '')
+        # published = str2dt(request.get('published', '', type=str))
+        # cvss_time = str2dt(request.get('cvss_time', '', type=str))
+        vuln.cvss = data.get('cvss', 0.0)
+        vuln.vector_string = data.get('vector_string', '')
+        vuln.source = data.get('source', '')
+        vuln.save()
+        disconnect_database()
+        return vuln.vulnerability_id
+    disconnect_database()
+    return -1
+
+def create_vulner_in_database(id, data):
+    print(data)

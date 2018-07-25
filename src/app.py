@@ -12,6 +12,8 @@ app = Flask(__name__)
 
 from database import count_vulners
 from database import find_vulner_by_id_in_database
+from database import update_vulner_by_id_in_database
+from database import create_vulner_in_database
 
 def dt2str(dt):
     return dt.strftime('%Y-%m-%d %H:%M:%S')
@@ -36,38 +38,62 @@ def statistic():
 @app.route('/update_vulner_by_id', methods=['GET'])
 def update_vulner_by_id():
     data = {}
+    data_json = {}
     status = 404
     if request.method == 'GET':
-        id = request.args.get('id', 'CVE-2018-7305', type=str)
-        print(id)
+        vid = request.args.get('id', 'CVE-2018-7305', type=str)
+        data_json["vulnerability_id"] = vid
         cwe_str = request.args.get('cwe', [], type=str)
-        try:
-            cwe = json.loads(cwe_str)
-        except:
-            cwe = []
-        capec_str = request.get('capec', [], type=str)
-        try:
-            capec = json.loads(capec_str)
-        except:
-            capec = []
-        references_str = request.get('references', [], type=str)
-        try:
-            references = json.loads(references_str)
-        except:
-            references = []
-        data_type = request.get('data_type', '', type=str)
-        data_format = request.get('data_format', '', type=str)
-        data_version = request.get('data_version', '', type=str)
-        description = request.get('description', '', type=str)
-        published = str2dt(request.get('published', '', type=str))
-        cvss_time = str2dt(request.get('cvss_time', '', type=str))
-        cvss = request.get('cvss', '0.0', type=str)
-        rank = request.get('rank', '0', type=str)
-        vector_string = request.get('vector_string', '', type=str)
-        source = request.get('source', '', type=str)
+        cwe_list = cwe_str.replace(' ', '').split(';')
+        cwe = []
+        for c in cwe_list:
+            if c != "":
+                if "CWE-" in c:
+                    cwe.append(c)
+        data_json["cwe"] = cwe
+        capec_str = request.args.get('capec', [], type=str)
+        capec_list = capec_str.replace(' ', '').split(';')
+        capec = []
+        for c in capec_list:
+            if c != "":
+                if "CAPEC-" in c:
+                    capec.append(c)
+        data_json["capec"] = capec
+        references_str = request.args.get('references', [], type=str)
+        references_list = references_str.replace(' ', '').split(';')
+        references = []
+        for r in references_list:
+            if r != "":
+                if "http" in r:
+                    references.append(r)
+        data_json["references"] = references
+        data_type = request.args.get('data_type', '', type=str)
+        data_json["data_type"] = data_type
+        data_format = request.args.get('data_format', '', type=str)
+        data_json["data_format"] = data_format
+        data_version = request.args.get('data_version', '', type=str)
+        data_json["data_version"] = data_version
+        description = request.args.get('description', '', type=str)
+        data_json["description"] = description
+        # published = str2dt(request.get('published', '', type=str))
+        # cvss_time = str2dt(request.get('cvss_time', '', type=str))
+        cvss = request.args.get('cvss', '0.0', type=str)
+        data_json["cvss"] = cvss
+        rank = request.args.get('rank', '0', type=str)
+        vector_string = request.args.get('vector_string', '', type=str)
+        data_json["vector_string"] = vector_string
+        source = request.args.get('source', '', type=str)
+        data_json["source"] = source
 
+        result = update_vulner_by_id_in_database(id=vid, data=data_json)
 
-        data = {'result': id}
+        data = {'result': result}
+
+        if result == -1:
+            status = 404
+        else:
+            status = 200
+        
     response = app.response_class(
         response=json.dumps(data),
         status=200,
@@ -83,7 +109,6 @@ def find_vulner_by_id():
         id = request.args.get('id', 'CVE-2018-7305', type=str)
         vulner = find_vulner_by_id_in_database(id)
         if vulner is not None:
-            print(vulner)
             vulner_id = vulner.get("vulnerability_id", "undefined")
             vulner_cwe = "; ".join(vulner.get("cwe", []))
             vulner_capec = "; ".join(vulner.get("capec", []))
@@ -100,7 +125,7 @@ def find_vulner_by_id():
             vulner_references = "; ".join(vulner.get("references", []))
             vulner_source = ""
             if vulner_data_type == "CVE":
-                vulner_source = "CVE Database"
+                vulner_source = "CVE"
             data = {
                 'id': vulner_id, 
                 'cwe': vulner_cwe, 
@@ -141,6 +166,9 @@ def find_vulner_by_id():
     )
     return response
 
+@app.route('/create_vulner')
+def create_vulner():
+    result = create_vulner_in_database(vid, data)
 
 if __name__ == '__main__':
     app.run(
